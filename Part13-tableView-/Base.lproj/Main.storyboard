@@ -37,7 +37,7 @@
                     <navigationItem key="navigationItem" id="TBd-yQ-ljZ">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="Jcm-7b-mHZ">
                             <connections>
-                                <segue destination="NQR-hc-o4W" kind="show" id="cXA-p2-gBI"/>
+                                <segue destination="NQR-hc-o4W" kind="show" identifier="input" id="cXA-p2-gBI"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>

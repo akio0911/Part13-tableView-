@@ -24,7 +24,7 @@ final class ViewController: UIViewController {
         Fruit(name:"バナナ", isChecked: false),
         Fruit(name:"パイナップル", isChecked: true)
     ]
-    private(set) var editIndex: IndexPath?
+    private(set) var editIndexPath: IndexPath?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,7 +36,7 @@ final class ViewController: UIViewController {
 
     @IBAction func save(segue: UIStoryboardSegue) {
         guard let inputVC = segue.source as? InputViewController,
-              let newFruit = inputVC.fruit else {
+              let newFruit = inputVC.output else {
             return
         }
         fruitsData.append(newFruit)
@@ -45,27 +45,22 @@ final class ViewController: UIViewController {
 
     @IBAction func edit(segue: UIStoryboardSegue) {
         guard let inputVC = segue.source as? InputViewController,
-              let indexPath = inputVC.fruitIndex,
-              let fruit = inputVC.fruit else {
+              let fruit = inputVC.output,
+              let editIndexPath = editIndexPath else {
             return
         }
-        fruitsData[indexPath.row] = fruit
-//        tableView.reloadData()
-        tableView.reloadRows(at: [indexPath], with: .automatic)
+        fruitsData[editIndexPath.row] = fruit
+        tableView.reloadRows(at: [editIndexPath], with: .automatic)
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let nextVC = (segue.destination as? UINavigationController)?.topViewController as? InputViewController {
             switch segue.identifier ?? "" {
             case "input":
-                nextVC.mode = InputViewController.Mode.input
+                nextVC.mode = .input
             case "edit":
-                nextVC.mode = InputViewController.Mode.edit
-                if let indexPath = sender as? IndexPath {
-                    let editItem = fruitsData[indexPath.row]
-                    nextVC.fruit = editItem
-                    nextVC.fruitIndex = editIndex
-                }
+                guard let editIndexPath = editIndexPath else { return }
+                nextVC.mode = .edit(fruitsData[editIndexPath.row])
             default:
                 break
             }
@@ -97,8 +92,8 @@ extension ViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, accessoryButtonTappedForRowWith indexPath: IndexPath) {
-        editIndex = indexPath
-        performSegue(withIdentifier: "edit", sender: indexPath)
+        editIndexPath = indexPath
+        performSegue(withIdentifier: "edit", sender: nil)
     }
 }
 

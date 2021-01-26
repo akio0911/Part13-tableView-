@@ -11,25 +11,55 @@ final class InputViewController: UIViewController {
 
     enum Mode {
         case input
-        case edit
+        case edit(Fruit)
     }
 
     @IBOutlet private weak var textField: UITextField!
 
     var mode: Mode?
-    var fruit: Fruit?
-    var fruitIndex: IndexPath?
+    private(set) var output: Fruit?
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let fruit = fruit {
-            textField.text = fruit.name
+
+        guard let mode = mode else {
+            fatalError("mode is nil.")
         }
+
+        textField.text = {
+            switch mode {
+            case .input:
+                return ""
+            case let .edit(fruit):
+                return fruit.name
+            }
+        }()
     }
 
     @IBAction private func saveAction(_ sender: Any) {
-        fruit = Fruit(name: textField.text ?? "", isChecked: fruit?.isChecked ?? false)
-        let identifier = mode == Mode.edit ? "edit" : "save"
-        performSegue(withIdentifier: identifier, sender: sender)
+        guard let mode = mode else { return }
+
+        let isChecked: Bool = {
+            switch mode {
+            case .input:
+                return false
+            case let .edit(fruit):
+                return fruit.isChecked
+            }
+        }()
+
+        output = Fruit(name: textField.text ?? "", isChecked: isChecked)
+
+        performSegue(
+            withIdentifier: {
+                switch mode {
+                case .edit:
+                    return "edit"
+                case .input:
+                    return "save"
+                }
+            }(),
+            sender: sender
+        )
     }
 }
